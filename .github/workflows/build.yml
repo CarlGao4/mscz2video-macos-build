@@ -1,0 +1,148 @@
+name: Build mscz2video macOS
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: 'Commit to build'
+        required: true
+        default: 'main'
+      version-tag:
+        description: 'Version tag'
+        required: true
+        default: '0.1'
+
+jobs:
+  build-arm64:
+    runs-on: macos-14
+    name: Build mscz2video macOS ARM64
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - name: Checkout current repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          path: 'build-repo'
+
+      - name: Checkout mscz-to-video
+        uses: actions/checkout@v4
+        with:
+          repository: 'CarlGao4/mscz-to-video'
+          ref: ${{ github.event.inputs.commit }}
+          fetch-depth: 1
+          submodules: 'recursive'
+          path: 'mscz-to-video'
+
+      - name: Install miniconda
+        uses: conda-incubator/setup-miniconda@v3
+
+      - name: Set up conda environment
+        run: |
+          conda create -n Pack python=3.11
+          conda activate Pack
+          pip install pillow pyinstaller==6.12.0 psutil webcolors pyside6 
+          pip cache purge
+          pip install "numpy<2" "torch==2.1.2"
+          pip cache purge
+
+      - name: Prepare data
+        run: |
+          mkdir ./build
+          cp -r mscz-to-video/*.py ./build/
+          cd ./build
+          cp -r ../mscz-to-video/icon/ ./icon
+          tar -xvf ../build-repo/ffmpeg-arm64.tar.xz
+          conda activate Pack
+
+      - name: Pack mscz2video
+        run: |
+          conda activate Pack
+          cd ./build
+          pyinstaller mscz2video-ui.py -D -w -n mscz2video -i icon/icon.icns --add-data icon:icon --add-data convert_core.py:convert_core.py --add-data bin:ffmpeg --add-data dylibs:. --osx-bundle-identifier com.musescore.videoconverter --contents-directory "." --distpath "./dist" --clean
+          rm -rf build
+
+      - name: Create DMG
+        run: |
+          cd build-repo
+          xz -d mscz2video_ARM64_editable.dmg.xz
+          hdiutil attach mscz2video_ARM64_editable.dmg
+          rm -rf /Volumes/mscz2video/mscz2video.app/
+          sudo cp -a ../build/dist/mscz2video.app /Volumes/mscz2video/
+          diskutil rename /Volumes/mscz2video "mscz2video ${{ github.event.inputs.version-tag }} ARM64"
+          hdiutil detach "/Volumes/mscz2video ${{ github.event.inputs.version-tag }} ARM64"
+          hdiutil convert mscz2video_ARM64_editable.dmg -format UDZO -o mscz2video_${{ github.event.inputs.version-tag }}_macOS_ARM64.dmg
+
+      - name: Upload mscz2video
+        uses: actions/upload-artifact@v4
+        with:
+          name: mscz2video-ARM64
+          path: ./build-repo/mscz2video_${{ github.event.inputs.version-tag }}_macOS_ARM64.dmg
+
+  build-x86:
+    runs-on: macos-13
+    name: Build mscz2video macOS x86_64
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - name: Checkout current repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          path: 'build-repo'
+
+      - name: Checkout mscz-to-video
+        uses: actions/checkout@v4
+        with:
+          repository: 'CarlGao4/mscz-to-video'
+          ref: ${{ github.event.inputs.commit }}
+          fetch-depth: 1
+          submodules: 'recursive'
+          path: 'mscz-to-video'
+
+      - name: Install miniconda
+        uses: conda-incubator/setup-miniconda@v3
+
+      - name: Set up conda environment
+        run: |
+          conda create -n Pack python=3.11
+          conda activate Pack
+          pip install pillow pyinstaller==6.12.0 psutil webcolors pyside6 
+          pip cache purge
+          pip install "numpy<2" "torch==2.1.2"
+          pip cache purge
+
+      - name: Prepare data
+        run: |
+          mkdir ./build
+          cp -r mscz-to-video/*.py ./build/
+          cd ./build
+          cp -r ../mscz-to-video/icon/ ./icon
+          tar -xvf ../build-repo/ffmpeg-x86_64.tar.xz
+          conda activate Pack
+
+      - name: Pack mscz2video
+        run: |
+          conda activate Pack
+          cd ./build
+          pyinstaller mscz2video-ui.py -D -w -n mscz2video -i icon/icon.icns --add-data icon:icon --add-data convert_core.py:convert_core.py --add-data ffmpeg:ffmpeg --add-data dylibs:. --osx-bundle-identifier com.musescore.videoconverter --contents-directory "." --distpath "./dist" --clean
+          rm -rf build
+
+      - name: Create DMG
+        run: |
+          cd build-repo
+          xz -d mscz2video_ARM64_editable.dmg.xz
+          hdiutil attach mscz2video_ARM64_editable.dmg
+          rm -rf /Volumes/mscz2video/mscz2video.app/
+          sudo cp -a ../build/dist/mscz2video.app /Volumes/mscz2video/
+          diskutil rename /Volumes/mscz2video "mscz2video ${{ github.event.inputs.version-tag }} x86_64"
+          hdiutil detach "/Volumes/mscz2video ${{ github.event.inputs.version-tag }} x86_64"
+          hdiutil convert mscz2video_ARM64_editable.dmg -format UDZO -o mscz2video_${{ github.event.inputs.version-tag }}_macOS_x86_64.dmg
+
+      - name: Upload mscz2video
+        uses: actions/upload-artifact@v4
+        with:
+          name: mscz2video-x86_64
+          path: ./build-repo/mscz2video_${{ github.event.inputs.version-tag }}_macOS_x86_64.dmg
