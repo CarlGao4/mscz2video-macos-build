@@ -60,7 +60,7 @@ jobs:
         run: |
           conda activate Pack
           cd ./build
-          pyinstaller mscz2video-ui.py -D -w -n mscz2video -i icon/icon.icns --add-data icon:icon --add-data convert_core.py:convert_core.py --add-data bin:ffmpeg --add-data dylibs:. --osx-bundle-identifier com.musescore.videoconverter --contents-directory "." --distpath "./dist" --clean
+          pyinstaller mscz2video-ui.py -D -w -n mscz2video -i icon/icon.icns --add-data icon:icon --add-data convert_core.py:. --add-data bin:ffmpeg --add-data dylibs:. --osx-bundle-identifier com.musescore.videoconverter --contents-directory "." --distpath "./dist" --clean
           rm -rf build
 
       - name: Create DMG
@@ -127,7 +127,7 @@ jobs:
         run: |
           conda activate Pack
           cd ./build
-          pyinstaller mscz2video-ui.py -D -w -n mscz2video -i icon/icon.icns --add-data icon:icon --add-data convert_core.py:convert_core.py --add-data ffmpeg:ffmpeg --add-data dylibs:. --osx-bundle-identifier com.musescore.videoconverter --contents-directory "." --distpath "./dist" --clean
+          pyinstaller mscz2video-ui.py -D -w -n mscz2video -i icon/icon.icns --add-data icon:icon --add-data convert_core.py:. --add-data ffmpeg:ffmpeg --add-data dylibs:. --osx-bundle-identifier com.musescore.videoconverter --contents-directory "." --distpath "./dist" --clean
           rm -rf build
 
       - name: Create DMG
