@@ -42,7 +42,7 @@ jobs:
         run: |
           conda create -n Pack python=3.11
           conda activate Pack
-          pip install pillow pyinstaller==6.12.0 psutil webcolors pyside6 
+          pip install pillow pyinstaller==6.12.0 psutil webcolors pyside6 packaging
           pip cache purge
           pip install "numpy<2" "torch==2.5.1"
           pip cache purge
@@ -109,7 +109,7 @@ jobs:
         run: |
           conda create -n Pack python=3.11
           conda activate Pack
-          pip install pillow pyinstaller==6.12.0 psutil webcolors pyside6 
+          pip install pillow pyinstaller==6.12.0 psutil webcolors pyside6 packaging
           pip cache purge
           pip install "numpy<2" "torch==2.2.2"
           pip cache purge
