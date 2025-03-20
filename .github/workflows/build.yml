@@ -42,20 +42,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          conda create -n Pack python=3.9
+          conda create -n Pack python=3.11
           conda activate Pack
           pip install pillow pyinstaller==6.12.0 psutil webcolors pyside6 packaging
           pip cache purge
           pip install "numpy<2"
-          curl -JL -o macos-py3-arm64.zip -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/pytorch/pytorch/actions/artifacts/2769715962/zip
-          unzip macos-py3-arm64.zip
-          rm macos-py3-arm64.zip
-          unzip artifacts.zip
-          rm artifacts.zip
-          pip install ./dist/torch-2.8.0a0+git7b6c5bf-cp39-cp39-macosx_11_0_arm64.whl
-          rm -rf ./dist
-          rm -rf ./build
-          rm -rf ./.additional_ci_files
+          pip install --pre torch --index-url https://download.pytorch.org/whl/nightly/cpu
           pip cache purge
 
       - name: Prepare data
