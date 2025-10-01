@@ -42,9 +42,9 @@ jobs:
         run: |
           conda create -n Pack python=3.11
           conda activate Pack
-          pip install pillow pyinstaller==6.12.0 psutil webcolors pyside6 packaging
+          pip install pillow pyinstaller==6.12.0 psutil webcolors pyside6==6.8.3 packaging soundfile
           pip cache purge
-          pip install "numpy<2" "torch==2.5.1"
+          pip install "numpy<2" torch==2.8.0
           pip cache purge
 
       - name: Prepare data
@@ -109,7 +109,7 @@ jobs:
         run: |
           conda create -n Pack python=3.11
           conda activate Pack
-          pip install pillow pyinstaller==6.12.0 psutil webcolors pyside6 packaging
+          pip install pillow pyinstaller==6.12.0 psutil webcolors pyside6==6.8.3 packaging soundfile
           pip cache purge
           pip install "numpy<2" "torch==2.2.2"
           pip cache purge
